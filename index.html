@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>RangeDesk</title>
+<meta name="theme-color" content="#2563eb">
+<meta name="description" content="RangeDesk: range planner and risk calculator for weekday and weekend trading.">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="RangeDesk">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/icon.svg" type="image/svg+xml">
+<link rel="icon" href="icons/favicon-32.png" sizes="32x32" type="image/png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#eef2f8;--panel:#fff;--panel2:#f5f7fb;--ink:#0f1a2e;--mut:#64728c;--line:#dde4ef;--acc:#2563eb;--accBg:#e4edff;--buy:#0e9f6e;--buyBg:#dcf5ea;--sell:#d9384a;--sellBg:#fde4e7;--mid:#b7791f;--midBg:#fcf1d9;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#080e1a;--panel:#0f1829;--panel2:#142036;--ink:#e6edf8;--mut:#8493ad;--line:#1e2c45;--acc:#5b8cff;--accBg:#16264a;--buy:#2dd4a0;--buyBg:#0d3427;--sell:#ff6b7a;--sellBg:#3a1820;--mid:#f2bf4b;--midBg:#382b0d}}
+:root[data-theme="dark"]{--bg:#080e1a;--panel:#0f1829;--panel2:#142036;--ink:#e6edf8;--mut:#8493ad;--line:#1e2c45;--acc:#5b8cff;--accBg:#16264a;--buy:#2dd4a0;--buyBg:#0d3427;--sell:#ff6b7a;--sellBg:#3a1820;--mid:#f2bf4b;--midBg:#382b0d}
+*,*::before,*::after{box-sizing:inherit}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:Inter,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;line-height:1.45;font-variant-numeric:tabular-nums;-webkit-text-size-adjust:100%}
+svg.i{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex:none}
+.app{display:grid;grid-template-columns:232px minmax(0,1fr);min-height:100vh}
+.side{position:sticky;top:0;height:100vh;display:flex;flex-direction:column;gap:6px;padding:20px 14px;background:var(--panel);border-right:1px solid var(--line)}
+.brand{display:flex;align-items:center;gap:10px;font-weight:700;font-size:1.02rem;margin-bottom:18px}
+.logo{display:grid;place-items:center;width:34px;height:34px;border-radius:9px;background:var(--acc);color:#fff}
+.nav{display:flex;flex-direction:column;gap:4px}
+.nav button{display:flex;align-items:center;gap:10px;width:100%;border:0;background:transparent;color:var(--mut);padding:10px 12px;border-radius:8px;font-weight:600;text-align:left}
+.nav button:hover{background:var(--panel2);color:var(--ink)}
+.nav button[aria-pressed="true"]{background:var(--accBg);color:var(--acc)}
+.sidefoot{margin-top:auto}
+.ghost{display:inline-flex;align-items:center;gap:8px;background:transparent;color:var(--mut);border:1px solid var(--line)}
+.top{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:16px 24px;border-bottom:1px solid var(--line);background:var(--panel)}
+.top h1{font-size:1.25rem;font-weight:700;margin:0;letter-spacing:-.01em}
+.mbrand,.mtheme{display:none}
+.clock{display:inline-flex;align-items:center;gap:8px;padding:6px 12px;border:1px solid var(--line);border-radius:999px;font-size:.82rem;background:var(--panel2);color:var(--mut)}
+.clock b{color:var(--ink)}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--buy);box-shadow:0 0 0 3px var(--buyBg)}
+.clock.off .dot{background:var(--sell);box-shadow:0 0 0 3px var(--sellBg)}
+main{max-width:1080px;margin:0 auto;padding:20px 24px 40px}
+.sub{color:var(--mut);margin:0 0 16px;max-width:64ch;font-size:.92rem}
+.tool{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-bottom:16px}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:10px;background:var(--panel);padding:3px;gap:2px}
+.seg button{display:inline-flex;align-items:center;gap:7px;border:0;background:transparent;padding:8px 16px;border-radius:8px;font-weight:600;color:var(--mut)}
+.seg button[aria-pressed="true"]{background:var(--acc);color:#fff}
+.grid{display:grid;grid-template-columns:minmax(0,.9fr) minmax(0,1.25fr);gap:18px;align-items:start}
+section{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:18px}
+h2{display:flex;align-items:center;gap:8px;font-size:1rem;margin:0 0 14px;font-weight:700}
+h2 svg{color:var(--acc)}
+label{display:block;font-size:.78rem;font-weight:600;color:var(--mut);margin-bottom:12px}
+input,select{display:block;width:100%;margin-top:5px;padding:10px 11px;font:inherit;font-size:1rem;font-weight:500;color:var(--ink);background:var(--panel2);border:1px solid var(--line);border-radius:8px}
+input:focus,select:focus{border-color:var(--acc)}
+:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.status{padding:11px 13px;border-radius:10px;font-weight:600;font-size:.92rem;margin-bottom:14px;background:var(--panel2);border:1px solid var(--line)}
+.status.buy{background:var(--buyBg);color:var(--buy);border-color:var(--buy)}
+.status.sell{background:var(--sellBg);color:var(--sell);border-color:var(--sell)}
+.status.warn{background:var(--midBg);color:var(--mid);border-color:var(--mid)}
+.ladder{position:relative;height:320px;margin:6px 4px 18px 8px;border-left:2px solid var(--line)}
+.band{position:absolute;left:0;width:46%;border-radius:0 6px 6px 0}.band.b{background:var(--buyBg)}.band.s{background:var(--sellBg)}
+.ln{position:absolute;left:0;right:0;border-top:1px dashed var(--mut);font-size:.75rem;color:var(--mut)}
+.ln span{position:absolute;right:0;top:-9px;background:var(--panel);padding:0 4px}
+.ln.rng{border-top:2px solid var(--ink);color:var(--ink)}.ln.sl{border-top-color:var(--sell);color:var(--sell)}.ln.mid{border-top-color:var(--mid);color:var(--mid)}
+.px{position:absolute;left:0;right:0;border-top:3px solid var(--acc);color:#fff;font-weight:700;font-size:.8rem}
+.px span{position:absolute;left:49%;top:-12px;background:var(--acc);padding:1px 8px;border-radius:999px}
+.plans{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.plan{border:1px solid var(--line);border-top:3px solid var(--mut);border-radius:12px;padding:12px;font-size:.88rem;background:var(--panel2)}
+.plan.b{border-top-color:var(--buy)}.plan.s{border-top-color:var(--sell)}
+.ph{display:flex;align-items:center;gap:8px;margin-bottom:10px}
+.ph h3{margin:0;font-size:.9rem;flex:1;line-height:1.2}
+.ic{display:grid;place-items:center;width:28px;height:28px;border-radius:8px}
+.b .ic{background:var(--buyBg);color:var(--buy)}.s .ic{background:var(--sellBg);color:var(--sell)}
+.rr{font-size:.75rem;font-weight:700;padding:3px 8px;border-radius:999px;background:var(--buyBg);color:var(--buy)}
+.rr.lo{background:var(--midBg);color:var(--mid)}
+dl{margin:0;display:grid;grid-template-columns:auto 1fr;gap:4px 10px}
+dt{color:var(--mut)}dd{margin:0;text-align:right;font-weight:600}
+dd.g{color:var(--buy)}dd.r{color:var(--sell)}dd.w{color:var(--mid)}
+.pf{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px;padding-top:10px;border-top:1px solid var(--line)}
+.pf small{display:block;color:var(--mut);font-size:.72rem}.pf b{font-size:1.05rem}
+.send{grid-column:1/-1;display:flex;align-items:center;justify-content:center;gap:8px;background:var(--acc);color:#fff;border-color:var(--acc);font-weight:600;font-size:.85rem}
+.note{font-size:.78rem;color:var(--mut);margin-top:14px}
+button{font:inherit;padding:9px 14px;border-radius:8px;border:1px solid var(--line);background:var(--panel2);color:var(--ink);cursor:pointer}
+.reset{display:inline-flex;align-items:center;gap:8px;color:var(--mut)}
+.big{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px}
+.big div{border:1px solid var(--line);background:var(--panel2);border-radius:10px;padding:11px 12px}
+.big small{display:block;color:var(--mut);font-size:.74rem;font-weight:600}
+.big strong{font-size:1.4rem;font-weight:700}
+h3.sec{font-size:.9rem;margin:18px 0 8px}
+table{width:100%;border-collapse:collapse;font-size:.88rem}
+th,td{text-align:right;padding:7px 4px;border-bottom:1px solid var(--line)}th:first-child,td:first-child{text-align:left}
+th{color:var(--mut);font-weight:600}
+[hidden]{display:none!important}
+@media(max-width:820px){
+.app{grid-template-columns:1fr}
+.side{position:fixed;inset:auto 0 0 0;top:auto;height:auto;flex-direction:row;padding:6px 10px calc(6px + env(safe-area-inset-bottom,0px));border-right:0;border-top:1px solid var(--line);z-index:20}
+.side .brand,.sidefoot{display:none}
+.nav{flex-direction:row;width:100%}
+.nav button{flex-direction:column;gap:3px;justify-content:center;align-items:center;text-align:center;font-size:.72rem;padding:7px 4px}
+.top{padding:12px 14px}.mbrand,.mtheme{display:inline-flex}
+.mbrand{align-items:center;gap:8px;font-weight:700}
+.top h1{display:none}
+main{padding:14px 14px 100px}
+.grid{grid-template-columns:1fr}
+}
+@media(max-width:480px){.plans{grid-template-columns:1fr}.big strong{font-size:1.15rem}.clock{font-size:.74rem;padding:5px 9px}.mbrand span:last-child{display:none}}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+<symbol id="i-chart" viewBox="0 0 24 24"><path d="M3 3v18h18"/><path d="M7 15l4-5 3 3 5-7"/></symbol>
+<symbol id="i-calc" viewBox="0 0 24 24"><rect x="4" y="2" width="16" height="20" rx="2"/><path d="M8 6h8M8 11h.01M12 11h.01M16 11h.01M8 15h.01M12 15h.01M16 15h.01M8 18h.01M12 18h.01M16 18h.01"/></symbol>
+<symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></symbol>
+<symbol id="i-moon" viewBox="0 0 24 24"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></symbol>
+<symbol id="i-up" viewBox="0 0 24 24"><path d="M7 17L17 7M8 7h9v9"/></symbol>
+<symbol id="i-down" viewBox="0 0 24 24"><path d="M7 7l10 10M17 8v9H8"/></symbol>
+<symbol id="i-sl" viewBox="0 0 24 24"><path d="M4 6h10M18 6h2M4 12h4M12 12h8M4 18h12M20 18h0"/><circle cx="16" cy="6" r="2"/><circle cx="10" cy="12" r="2"/><circle cx="18" cy="18" r="2"/></symbol>
+<symbol id="i-reset" viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/></symbol>
+<symbol id="i-send" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></symbol>
+<symbol id="i-shield" viewBox="0 0 24 24"><path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/><path d="M9 12l2 2 4-4"/></symbol>
+<symbol id="i-theme" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 3a9 9 0 0 1 0 18z" fill="currentColor"/></symbol>
+</defs></svg>
+<div class="app">
+<aside class="side">
+<div class="brand"><span class="logo"><svg class="i"><use href="#i-chart"/></svg></span>RangeDesk</div>
+<nav class="nav" aria-label="Pages"><button type="button" id="tabP" aria-pressed="true"><svg class="i"><use href="#i-chart"/></svg>Planner</button><button type="button" id="tabC" aria-pressed="false"><svg class="i"><use href="#i-calc"/></svg>Risk calculator</button></nav>
+<div class="sidefoot"><button type="button" class="ghost themeBtn"><svg class="i"><use href="#i-theme"/></svg>Switch theme</button></div>
+</aside>
+<div class="content">
+<header class="top"><span class="mbrand"><span class="logo"><svg class="i"><use href="#i-chart"/></svg></span><span>RangeDesk</span></span><h1 id="ttl">Range planner</h1><div style="display:flex;gap:8px;align-items:center"><div class="clock" id="clock"></div><button type="button" class="ghost mtheme themeBtn" aria-label="Switch theme"><svg class="i"><use href="#i-theme"/></svg></button></div></header>
+<main>
+<div class="tool" id="modeTool"><div class="seg" role="group" aria-label="Mode" id="modeSeg"><button type="button" id="mWd" aria-pressed="true"><svg class="i"><use href="#i-sun"/></svg>Weekday</button><button type="button" id="mWe" aria-pressed="false"><svg class="i"><use href="#i-moon"/></svg>Weekend</button></div></div>
+<p class="sub" id="subT"></p>
+
+<div id="pgP" class="grid">
+<section>
+<h2><svg class="i"><use href="#i-sl"/></svg>Your numbers</h2>
+<label>Symbol
+<select id="sym"><option value="BTCUSD" data-d="2">BTCUSD</option><option value="ETHUSD" data-d="2">ETHUSD</option><option value="LTCUSD" data-d="2">LTCUSD</option><option value="XRPUSD" data-d="4">XRPUSD</option><option value="XAUUSD" data-d="2">XAUUSD</option><option value="EURUSD" data-d="5">EURUSD</option></select></label>
+<div class="row">
+<label><span id="hiL">Range high</span><input id="hi" type="number" inputmode="decimal" step="any"></label>
+<label><span id="loL">Range low</span><input id="lo" type="number" inputmode="decimal" step="any"></label>
+</div>
+<div class="row">
+<label>Current price<input id="px" type="number" inputmode="decimal" step="any"></label>
+<label>Spread (price units)<input id="sp" type="number" inputmode="decimal" step="any" value="0"></label>
+</div>
+<div class="row">
+<label>Balance (USD)<input id="bal" type="number" inputmode="decimal" step="any" value="1000"></label>
+<label>Risk per trade (%)<input id="rk" type="number" inputmode="decimal" step="any" value="1"></label>
+</div>
+<div class="row">
+<label>Edge zone (% of range)<input id="zn" type="number" inputmode="decimal" step="any" value="25"></label>
+<label>Stop buffer (% of range)<input id="bf" type="number" inputmode="decimal" step="any" value="10"></label>
+</div>
+<label>Contract size (units per 1 lot)<input id="cs" type="number" inputmode="decimal" step="any" value="1"></label>
+<button id="rs" type="button" class="reset"><svg class="i"><use href="#i-reset"/></svg>Reset to defaults</button>
+<p class="note" id="inN"></p>
+</section>
+<section>
+<h2><svg class="i"><use href="#i-shield"/></svg>Plan</h2>
+<div class="status warn" id="st">Enter the range high, low and current price.</div>
+<div class="ladder" id="ld" aria-label="Range ladder"></div>
+<div class="plans" id="pl"></div>
+<p class="note" id="plN"></p>
+</section>
+</div>
+
+<div id="pgC" class="grid" hidden>
+<section>
+<h2><svg class="i"><use href="#i-sl"/></svg>Trade details</h2>
+<div class="row">
+<label>Direction<select id="c_dir"><option value="long">Long (buy)</option><option value="short">Short (sell)</option></select></label>
+<label>Contract size (units per lot)<input id="c_cs" type="number" inputmode="decimal" step="any" value="1"></label>
+</div>
+<div class="row">
+<label>Entry price<input id="c_en" type="number" inputmode="decimal" step="any"></label>
+<label>Stop loss<input id="c_sl" type="number" inputmode="decimal" step="any"></label>
+</div>
+<div class="row">
+<label>Take profit<input id="c_tp" type="number" inputmode="decimal" step="any"></label>
+<label>Win rate (%) for expectancy<input id="c_wr" type="number" inputmode="decimal" step="any" value="50"></label>
+</div>
+<div class="row">
+<label>Balance (USD)<input id="c_bal" type="number" inputmode="decimal" step="any" value="1000"></label>
+<label>Risk per trade (%)<input id="c_rk" type="number" inputmode="decimal" step="any" value="1"></label>
+</div>
+<div class="row">
+<label>Spread (price units)<input id="c_sp" type="number" inputmode="decimal" step="any" value="0"></label>
+<label>Commission (USD per lot, round trip)<input id="c_cm" type="number" inputmode="decimal" step="any" value="0"></label>
+</div>
+<label>Leverage (1:x)<input id="c_lv" type="number" inputmode="decimal" step="any" value="100"></label>
+<button id="c_rs" type="button" class="reset"><svg class="i"><use href="#i-reset"/></svg>Reset to defaults</button>
+<p class="note">Costs are added to your loss and taken off your win, so the lot size keeps your real loss at the risk you set.</p>
+</section>
+<section>
+<h2><svg class="i"><use href="#i-shield"/></svg>Results</h2>
+<div class="status warn" id="c_st">Enter entry, stop loss and take profit.</div>
+<div class="big" id="c_big"></div>
+<dl id="c_dl"></dl>
+<h3 class="sec">Profit at each target (R multiples)</h3>
+<table id="c_tb"></table>
+<p class="note">Planning aid only, not financial advice. Real fills, slippage and swap can change these numbers.</p>
+</section>
+</div>
+</main>
+</div>
+</div>
+
+<script>
+(function(){
+var $=function(i){return document.getElementById(i)};
+var pIds=["sym","hi","lo","px","sp","bal","rk","zn","bf","cs"],cIds=["c_dir","c_en","c_sl","c_tp","c_wr","c_bal","c_rk","c_sp","c_cm","c_lv","c_cs"];
+var pDef={sp:"0",bal:"1000",rk:"1",zn:"25",bf:"10",cs:"1"},cDef={c_wr:"50",c_bal:"1000",c_rk:"1",c_sp:"0",c_cm:"0",c_lv:"100",c_cs:"1"};
+var mode="weekday",page="P",plans=[];
+function ls(k,v){try{if(v===undefined)return JSON.parse(localStorage.getItem(k)||"{}");localStorage.setItem(k,JSON.stringify(v))}catch(e){return{}}}
+function load(){var s=ls("rpp");pIds.concat(cIds).forEach(function(k){if(s[k]!==undefined)$(k).value=s[k]});if(s.mode)mode=s.mode;else{var d=new Date().getUTCDay();mode=(d===0||d===6)?"weekend":"weekday"}}
+function save(){var s={mode:mode};pIds.concat(cIds).forEach(function(k){s[k]=$(k).value});ls("rpp",s)}
+function n(i){var v=parseFloat($(i).value);return isFinite(v)?v:NaN}
+function dec(){return +$("sym").selectedOptions[0].dataset.d}
+function fx(v,d){return v.toLocaleString("en-US",{minimumFractionDigits:d,maximumFractionDigits:d})}
+function f(v){return fx(v,dec())}
+function usd(v){return(v<0?"-$":"$")+fx(Math.abs(v),2)}
+function lots(risk,dist,cs){if(!(dist>0))return 0;return Math.floor(risk/(dist*cs)*100)/100}
+
+/* ---------- Planner ---------- */
+function fade(side,H,L,P,sp,R,zn,bf,risk,cs){
+ var z=zn*R,b=bf*R,mid=(H+L)/2,buy=side==="b",edge=buy?L+z:H-z;
+ var entry=buy?Math.min(P,edge):Math.max(P,edge),sl=buy?L-b:H+b,tp1=mid,tp2=buy?H-z:L+z;
+ return mk(buy,buy?"Buy at the low edge":"Sell at the high edge",entry,sl,tp1,tp2,sp,risk,cs,"Target 1 (mid)");
+}
+function brk(side,H,L,sp,R,risk,cs){
+ var buy=side==="b",mid=(H+L)/2,entry=buy?H:L;
+ return mk(buy,buy?"Buy breakout above the high":"Sell breakout below the low",entry,mid,buy?H+.5*R:L-.5*R,buy?H+R:L-R,sp,risk,cs,"Target 1 (+0.5 range)");
+}
+function mk(buy,t,entry,sl,tp1,tp2,sp,risk,cs,l1){
+ var rd=Math.abs(entry-sl)+sp;
+ return{buy:buy,t:t,l1:l1,entry:entry,sl:sl,tp1:tp1,tp2:tp2,rr1:(Math.abs(tp1-entry)-sp)/rd,rr2:(Math.abs(tp2-entry)-sp)/rd,lots:lots(risk,rd,cs),loss:risk};
+}
+function card(p,i){
+ var I=p.buy?"i-up":"i-down";
+ return '<div class="plan '+(p.buy?'b':'s')+'"><div class="ph"><span class="ic"><svg class="i"><use href="#'+I+'"/></svg></span><h3>'+p.t+'</h3><span class="rr'+(p.rr1>=1?'':' lo')+'">R:R '+(isFinite(p.rr1)?p.rr1.toFixed(2):"-")+'</span></div><dl>'+
+ '<dt>Entry</dt><dd>'+f(p.entry)+'</dd><dt>Stop</dt><dd class="r">'+f(p.sl)+'</dd>'+
+ '<dt>'+p.l1+'</dt><dd class="g">'+f(p.tp1)+'</dd><dt>Target 2</dt><dd class="g">'+f(p.tp2)+'</dd>'+
+ '<dt>Reward : risk (T2)</dt><dd>'+(isFinite(p.rr2)?p.rr2.toFixed(2):"-")+'</dd></dl>'+
+ '<div class="pf"><div><small>Lot size</small><b>'+(p.lots>0?p.lots.toFixed(2):"&lt;0.01")+'</b></div><div><small>Loss if stopped</small><b>$'+p.loss.toFixed(2)+'</b></div>'+
+ '<button type="button" class="send" data-i="'+i+'"><svg class="i"><use href="#i-calc"/></svg>Check in calculator</button></div>'+
+ (p.rr1>=1?"":'<p class="note" style="color:var(--mid)">Target 1 pays less than the risk. Skip this side or tighten the stop buffer.</p>')+'</div>';
+}
+function ladder(H,L,R,zn,P,pb,ps){
+ var lo=pb.sl-.06*R,hi=ps.sl+.06*R,span=hi-lo;
+ function y(v){return(100-(v-lo)/span*100)+"%"}
+ function h(a,b){return Math.abs(a-b)/span*100+"%"}
+ var z=zn*R,mid=(H+L)/2,o="";
+ o+='<div class="band s" style="top:'+y(H)+';height:'+h(H,H-z)+'"></div><div class="band b" style="top:'+y(L+z)+';height:'+h(L+z,L)+'"></div>';
+ function ln(v,c,t){return '<div class="ln '+c+'" style="top:'+y(v)+'"><span>'+t+' '+f(v)+'</span></div>'}
+ o+=ln(ps.sl,"sl","Sell stop")+ln(H,"rng","High")+ln(mid,"mid","Mid")+ln(L,"rng","Low")+ln(pb.sl,"sl","Buy stop");
+ if(isFinite(P)&&P>=lo&&P<=hi)o+='<div class="px" style="top:'+y(P)+'"><span>Price '+f(P)+'</span></div>';
+ $("ld").innerHTML=o;
+}
+function renderP(){
+ var wd=mode==="weekday";
+ $("hiL").textContent=wd?"Previous day high":"Weekend range high";
+ $("loL").textContent=wd?"Previous day low":"Weekend range low";
+ $("inN").textContent=wd?"Use yesterday’s high and low from the daily chart, or the Asian session range. Fades trade back into the range, breakouts trade a clean close beyond it.":"Take the range from Friday 21:00 UTC to now on the 1-hour chart. Check the contract size in the symbol specification on Exness, since it can differ by account type.";
+ $("plN").textContent=wd?"Planning aid only, not financial advice. On weekdays news can break a range quickly, so size small around major releases. A fade needs price to stay inside the range.":"Planning aid only, not financial advice. Weekend books are thin, so spreads and wicks can be larger than on weekdays. A close outside the range means the setup is off.";
+ var H=n("hi"),L=n("lo"),P=n("px"),sp=Math.max(0,n("sp")||0),bal=n("bal"),rk=n("rk"),zn=n("zn")/100,bf=n("bf")/100,cs=n("cs"),st=$("st");
+ if(!(H>L)||!isFinite(P)){st.className="status warn";st.textContent="Enter the range high, low and current price.";$("ld").innerHTML="";$("pl").innerHTML="";return}
+ var R=H-L,risk=bal*rk/100;
+ if(!isFinite(risk)||!(cs>0)||!isFinite(zn)||!isFinite(bf)){st.className="status warn";st.textContent="Check balance, risk, zone, buffer and contract size.";return}
+ var pb=fade("b",H,L,P,sp,R,zn,bf,risk,cs),ps=fade("s",H,L,P,sp,R,zn,bf,risk,cs),cls,msg;
+ if(P>H){cls="status buy";msg=wd?"Price is above the high. Breakout buy is in play, fades are off.":"Price is outside the range. Stand aside, the range may be broken."}
+ else if(P<L){cls="status sell";msg=wd?"Price is below the low. Breakout sell is in play, fades are off.":"Price is outside the range. Stand aside, the range may be broken."}
+ else if(P<=L+zn*R){cls="status buy";msg="Price is in the buy zone."}
+ else if(P>=H-zn*R){cls="status sell";msg="Price is in the sell zone."}
+ else{cls="status warn";msg="Price is mid-range. Wait for an edge."}
+ if(sp>0&&sp>R*.05)msg+=" The spread is more than 5% of the range, so costs will eat the edge.";
+ st.className=cls;st.textContent=msg+" Range width "+f(R)+" ("+(R/((H+L)/2)*100).toFixed(2)+"%).";
+ ladder(H,L,R,zn,P,pb,ps);
+ plans=[pb,ps];if(wd)plans.push(brk("b",H,L,sp,R,risk,cs),brk("s",H,L,sp,R,risk,cs));$("pl").innerHTML=plans.map(card).join("");
+}
+
+/* ---------- Calculator ---------- */
+function renderC(){
+ var long=$("c_dir").value==="long",E=n("c_en"),S=n("c_sl"),T=n("c_tp"),bal=n("c_bal"),rk=n("c_rk"),sp=Math.max(0,n("c_sp")||0),cm=Math.max(0,n("c_cm")||0),lv=n("c_lv"),cs=n("c_cs"),wr=n("c_wr")/100;
+ var st=$("c_st");
+ if(!isFinite(E)||!isFinite(S)||!isFinite(T)){st.className="status warn";st.textContent="Enter entry, stop loss and take profit.";$("c_big").innerHTML="";$("c_dl").innerHTML="";$("c_tb").innerHTML="";return}
+ if(!(bal>0)||!(rk>0)||!(cs>0)||!(lv>0)){st.className="status warn";st.textContent="Check balance, risk, leverage and contract size.";return}
+ var okSide=long?(S<E&&T>E):(S>E&&T<E);
+ if(!okSide){st.className="status sell";st.textContent="For a "+(long?"long":"short")+", the stop must be "+(long?"below":"above")+" entry and the target "+(long?"above":"below")+" it.";$("c_big").innerHTML="";$("c_dl").innerHTML="";$("c_tb").innerHTML="";return}
+ var sd=Math.abs(E-S),td=Math.abs(T-E),risk=bal*rk/100;
+ var lossLot=(sd+sp)*cs+cm,gainLot=(td-sp)*cs-cm,lt=risk/lossLot,lotsR=Math.floor(lt*100)/100;
+ var units=lotsR*cs,loss=lotsR*lossLot,gain=lotsR*gainLot,rrG=td/sd,rrN=gainLot/lossLot;
+ var be=E+(long?1:-1)*(sp+cm/cs),notional=units*E,margin=notional/lv;
+ var beWR=gainLot>0?lossLot/(lossLot+gainLot):NaN;
+ var ev=isFinite(wr)?wr*rrN-(1-wr):NaN,rk1=rk/100;
+ var streak=rk1<1?Math.ceil(Math.log(.9)/Math.log(1-rk1)):1;
+ var ruinN=Math.ceil(Math.log(.5)/Math.log(1-rk1));
+ var cls=rrN>=2?"status buy":rrN>=1?"status warn":"status sell";
+ st.className=cls;st.textContent=rrN>=2?"Good shape: net reward to risk is "+rrN.toFixed(2)+".":rrN>=1?"Acceptable: net reward to risk is "+rrN.toFixed(2)+". Needs a solid win rate.":gainLot>0?"Weak: you risk more than you can make after costs.":"Costs are bigger than the profit at your target. Do not take this trade.";
+ $("c_big").innerHTML='<div><small>Lot size</small><strong>'+(lotsR>0?lotsR.toFixed(2):"<0.01")+'</strong></div><div><small>Net reward : risk</small><strong>'+rrN.toFixed(2)+'</strong></div><div><small>Break-even price</small><strong>'+fx(be,dec2(E))+'</strong></div>';
+ function r(l,v,c){return'<dt>'+l+'</dt><dd'+(c?' class="'+c+'"':"")+'>'+v+'</dd>'}
+ var d=dec2(E);
+ $("c_dl").innerHTML=r("Risk amount","$"+fx(risk,2))+r("Loss if stopped (with costs)",usd(-loss),"r")+r("Profit at target (after costs)",usd(gain),gain>=0?"g":"r")+
+ r("Stop distance",fx(sd,d)+" ("+(sd/E*100).toFixed(2)+"%)")+r("Target distance",fx(td,d)+" ("+(td/E*100).toFixed(2)+"%)")+
+ r("Gross reward : risk",rrG.toFixed(2))+r("Round-trip cost",usd(lotsR*(sp*cs+cm)))+
+ r("Break-even win rate",isFinite(beWR)?(beWR*100).toFixed(1)+"%":"-","w")+
+ r("Expectancy per trade",isFinite(ev)?ev.toFixed(2)+"R ("+usd(ev*risk)+")":"-",ev>0?"g":"r")+
+ r("Position value",usd(notional))+r("Margin required",usd(margin)+" ("+(margin/bal*100).toFixed(1)+"% of balance)",margin>bal?"r":"")+
+ r("Losses in a row to lose 10%",streak)+r("Losses in a row to lose 50%",ruinN);
+ var h="<tr><th>Multiple</th><th>Price</th><th>Profit</th></tr>";
+ [1,1.5,2,3,4].forEach(function(m){var p=E+(long?1:-1)*(sd*m),pr=lotsR*(((sd*m)-sp)*cs-cm);h+="<tr><td>"+m+"R</td><td>"+fx(p,d)+"</td><td style=\"color:var(--"+(pr>=0?"buy":"sell")+")\">"+usd(pr)+"</td></tr>"});
+ $("c_tb").innerHTML=h;
+}
+function dec2(E){return E>=1000?2:E>=10?2:E>=1?4:5}
+
+/* ---------- Shell ---------- */
+function clock(){
+ var t=new Date(),m=t.getUTCDay()*1440+t.getUTCHours()*60+t.getUTCMinutes(),endM=1230,startM=8460,inW=(m>=startM||m<endM),rem;
+ if(m<endM)rem=endM-m;else if(m>=startM)rem=10080-m+endM;else rem=startM-m;
+ var d=Math.floor(rem/1440),hh=Math.floor(rem%1440/60),mm=rem%60,txt=(d?d+"d ":"")+hh+"h "+mm+"m",el=$("clock");
+ el.className="clock"+(inW?"":" off");
+ el.innerHTML='<i class="dot"></i><span>'+t.toUTCString().slice(17,22)+" UTC. "+(inW?"Weekend window open, flatten in <b>"+txt+"</b> (Sun 20:30 UTC)":"Weekend window opens in <b>"+txt+"</b> (Fri 21:00 UTC)")+"</span>";
+}
+function show(){
+ $("pgP").hidden=page!=="P";$("pgC").hidden=page!=="C";$("modeTool").hidden=page!=="P";$("ttl").textContent=page==="P"?"Range planner":"Risk calculator";$("subT").textContent=page==="P"?"Plan buy and sell zones, stops, targets and lot size from a price range.":"Check lot size, risk to reward, break-even and expectancy for any trade.";
+ $("tabP").setAttribute("aria-pressed",page==="P");$("tabC").setAttribute("aria-pressed",page==="C");
+ $("mWd").setAttribute("aria-pressed",mode==="weekday");$("mWe").setAttribute("aria-pressed",mode==="weekend");
+ try{history.replaceState(null,"",page==="C"?"#calculator":"#planner")}catch(e){}
+}
+function all(){save();show();renderP();renderC()}
+pIds.concat(cIds).forEach(function(k){$(k).addEventListener("input",all);$(k).addEventListener("change",all)});
+$("tabP").onclick=function(){page="P";all()};$("tabC").onclick=function(){page="C";all()};
+$("mWd").onclick=function(){mode="weekday";all()};$("mWe").onclick=function(){mode="weekend";all()};
+$("rs").onclick=function(){Object.keys(pDef).forEach(function(k){$(k).value=pDef[k]});all()};
+$("c_rs").onclick=function(){Object.keys(cDef).forEach(function(k){$(k).value=cDef[k]});all()};
+window.addEventListener("hashchange",function(){page=location.hash==="#calculator"?"C":"P";all()});
+$("pl").addEventListener("click",function(e){var b=e.target.closest(".send");if(!b)return;var p=plans[+b.dataset.i];if(!p)return;$("c_dir").value=p.buy?"long":"short";$("c_en").value=+p.entry.toFixed(6);$("c_sl").value=+p.sl.toFixed(6);$("c_tp").value=+p.tp1.toFixed(6);$("c_bal").value=$("bal").value;$("c_rk").value=$("rk").value;$("c_sp").value=$("sp").value;$("c_cs").value=$("cs").value;page="C";all();window.scrollTo(0,0)});
+try{var th=localStorage.getItem("rpt");if(th)document.documentElement.setAttribute("data-theme",th)}catch(e){}
+Array.prototype.forEach.call(document.querySelectorAll(".themeBtn"),function(b){b.onclick=function(){var r=document.documentElement,c=r.getAttribute("data-theme")||(matchMedia("(prefers-color-scheme:dark)").matches?"dark":"light"),t=c==="dark"?"light":"dark";r.setAttribute("data-theme",t);try{localStorage.setItem("rpt",t)}catch(e){}}});
+load();if(location.hash==="#calculator")page="C";all();clock();setInterval(clock,30000);
+if("serviceWorker" in navigator&&/^https?:$/.test(location.protocol))window.addEventListener("load",function(){navigator.serviceWorker.register("sw.js").catch(function(){})});
+})();
+</script>
+</body>
+</html>
